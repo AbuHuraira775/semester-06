@@ -1,0 +1,6 @@
+1- Professional Practice in SE (Sir Kamlesh Kumar)
+2- Game Development (Miss Saima Sipy)
+3- Software Quality Engineering (Miss Wajeeha Naeem)
+4- Web Engineering (Sir Hijazi Darwesh -External)
+5- Information Security (Sir Syed Rizwan -External)
+6- Business Process Engineering (Sir Basit Hasan)
