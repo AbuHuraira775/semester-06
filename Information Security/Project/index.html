@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RSA Encryption Example</title>
+  </head>
+  <body>
+    <label for="prime1">Enter Prime Number 1: </label>
+    <input type="text" id="prime1" /><br />
+
+    <label for="prime2">Enter Prime Number 2: </label>
+    <input type="text" id="prime2" /><br />
+
+    <label for="message">Enter Message: </label>
+    <input type="text" id="message" /><br />
+
+    <button onclick="generateKeys()">Generate Keys</button>
+    <button onclick="encryptAndSend()">Encrypt and Send</button>
+    <button onclick="decryptMessage()">Decrypt</button>
+
+    <script>
+      let globalCiphertext; // Variable to store the ciphertext globally
+
+      function generateKeys() {
+        const prime1 = BigInt(document.getElementById("prime1").value);
+        const prime2 = BigInt(document.getElementById("prime2").value);
+
+        const n = prime1 * prime2;
+        const phi = (prime1 - 1n) * (prime2 - 1n);
+
+        let e = 65537n; // commonly used value for e
+        while (gcd(e, phi) !== 1n) {
+          e++;
+        }
+
+        const d = modInverse(e, phi);
+
+        const publicKey = { n, e };
+        const privateKey = { n, d };
+
+        console.log("Public Key:", publicKey);
+        console.log("Private Key:", privateKey);
+
+        return { publicKey, privateKey };
+      }
+
+      function encryptAndSend() {
+        const { publicKey } = generateKeys();
+        const message = document.getElementById("message").value;
+        globalCiphertext = encrypt(message, publicKey);
+        console.log("Ciphertext:", globalCiphertext);
+
+        // Assume that the sender sends the public key and ciphertext to the receiver.
+        // In a real-world scenario, secure communication channels should be used.
+        const receiverPublicKey = publicKey;
+        decrypt(globalCiphertext, receiverPublicKey);
+      }
+
+      function decryptMessage() {
+        const { publicKey } = generateKeys();
+        // const ciphertext = BigInt(document.getElementById("message").value);
+        const decryptedMessage = decrypt(globalCiphertext, publicKey);
+
+        console.log("Decrypted Message:", decryptedMessage);
+      }
+
+      function encrypt(message, publicKey) {
+        const { n, e } = publicKey;
+        const messageBigInt = strToBigInt(message);
+        const encryptedMessage = modPow(messageBigInt, e, n);
+
+        return encryptedMessage;
+      }
+
+      function decrypt(globalCiphertext, privateKey) {
+        const { n, d } = privateKey;
+        const decryptedMessageBigInt = modPow(globalCiphertext, d, n);
+        const decryptedMessage = bigIntToStr(decryptedMessageBigInt);
+        // console.log(globalCiphertext)
+        // console.log(decryptedMessageBigInt)
+
+        return decryptedMessage;
+      }
+
+      function gcd(a, b) {
+        while (b !== 0n) {
+          const temp = b;
+          b = a % b;
+          a = temp;
+        }
+        return a;
+      }
+
+      function modInverse(a, m) {
+        let [m0, x0, x1] = [m, 0n, 1n];
+
+        while (a > 1n) {
+          const q = a / m;
+          [m, a] = [a % m, m];
+          [x0, x1] = [x1 - q * x0, x0];
+        }
+
+        return x1 < 0n ? x1 + m0 : x1;
+      }
+
+      function modPow(base, exponent, modulus) {
+        let result = 1n;
+        base = base % modulus;
+
+        while (exponent > 0) {
+          if (exponent % 2n === 1n) {
+            result = (result * base) % modulus;
+          }
+
+          exponent = exponent >> 1n;
+          base = (base * base) % modulus;
+        }
+
+        return result;
+      }
+
+      function strToBigInt(str) {
+        let result = 0n;
+
+        for (let i = 0; i < str.length; i++) {
+          result = result * 256n + BigInt(str.charCodeAt(i));
+        }
+
+        return result;
+      }
+
+      //   function bigIntToStr(bigInt) {
+      //     let result = "";
+
+      //     while (bigInt > 0n) {
+      //       result = String.fromCharCode(Number(bigInt % 256n)) + result;
+      //       bigInt = bigInt / 256n;
+      //     }
+
+      //     return result;
+      //   }
+
+      // ------------------------------------------------------------------------------
+
+      function bigIntToStr(bigInt) {
+        const alphabet = "abcdefghijklmnopqrstuvwxyz";
+
+        if (bigInt === 0n) {
+          return alphabet[0];
+        }
+
+        let result = "";
+        const base = BigInt(alphabet.length);
+
+        while (bigInt > 0n) {
+        //   const remainder = Number(bigInt % base);
+          result = String.fromCharCode(Number(bigInt % base)) + result;
+          bigInt = bigInt / base;
+        }
+
+        return result;
+      }
+
+      // ------------------------------------------------------------------------------
+
+      //   const bigInt = BigInt("12345678901234567890");
+      //   const str = bigInt.toString(26);
+      //   console.log('bigint',bigInt);
+      //   console.log('str',str);
+
+    //   function bigIntToAlphabetString(bigInt) {
+    //     const alphabet = "abcdefghijklmnopqrstuvwxyz";
+
+    //     if (bigInt === 0n) {
+    //       return alphabet[0];
+    //     }
+
+    //     let result = "";
+    //     const base = BigInt(alphabet.length);
+
+    //     while (bigInt > 0n) {
+    //       const remainder = Number(bigInt % base);
+    //       result = alphabet[remainder] + result;
+    //       bigInt = bigInt / base;
+    //     }
+
+    //     return result;
+    //   }
+
+    //   const bigInt = BigInt("12345678901234567890");
+    //   const str = bigIntToAlphabetString(bigInt);
+    //   console.log("bigint", bigInt);
+    //   console.log("str", str);
+    </script>
+  </body>
+</html>
