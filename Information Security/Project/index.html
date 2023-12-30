@@ -155,7 +155,7 @@
 
         while (bigInt > 0n) {
         //   const remainder = Number(bigInt % base);
-          result = String.fromCharCode(Number(bigInt % base)) + result;
+          result = result + String.fromCharCode(Number(bigInt % base)) ;
           bigInt = bigInt / base;
         }
 
